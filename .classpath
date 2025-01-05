@@ -9,5 +9,7 @@
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jsoup-1.18.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jfreechart-1.0.19/jfreechart-1.0.19/lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/mongodb-driver-sync-4.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/bson-4.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/mongodb-driver-core-4.11.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
