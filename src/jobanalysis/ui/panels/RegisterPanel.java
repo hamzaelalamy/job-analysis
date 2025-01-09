@@ -7,15 +7,19 @@ import jobanalysis.ui.MainFrame;
 
 import java.awt.*;
 
+import jobanalysis.services.AuthService;
+
 public class RegisterPanel extends JPanel {
     private JTextField userField;
     private JTextField emailField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private MainFrame parent;
+    private AuthService authService;
     
     public RegisterPanel(MainFrame parent) {
-        this.parent = parent;
+    	this.parent = parent;
+        this.authService = new AuthService();
         this.setLayout(new GridBagLayout());
         this.setBackground(MainFrame.BACKGROUND_COLOR);
         
@@ -122,10 +126,17 @@ public class RegisterPanel extends JPanel {
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Registration attempted with:\nUsername: " + username + 
-            "\nEmail: " + email, 
-            "Registration Info", 
-            JOptionPane.INFORMATION_MESSAGE);
+        if (authService.register(username, email, password)) {
+            JOptionPane.showMessageDialog(this, 
+                "Registration successful! Please login.", 
+                "Success", 
+                JOptionPane.INFORMATION_MESSAGE);
+            parent.showLogin();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Username already exists", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

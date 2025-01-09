@@ -7,15 +7,19 @@ import jobanalysis.ui.MainFrame;
 
 import java.awt.*;
 
+import jobanalysis.services.AuthService;
+
 public class LoginPanel extends JPanel {
     private JTextField userField;
     private JPasswordField passwordField;
     private MainFrame parent;
+    private AuthService authService;
     
     public LoginPanel(MainFrame parent) {
         this.parent = parent;
         this.setLayout(new GridBagLayout());
         this.setBackground(MainFrame.BACKGROUND_COLOR);
+        this.authService = new AuthService();
         
         // Create a container panel for the login form
         JPanel formPanel = new JPanel(new GridBagLayout());
@@ -108,9 +112,13 @@ public class LoginPanel extends JPanel {
             return;
         }
         
-        JOptionPane.showMessageDialog(this, 
-            "Login attempted with:\nUsername: " + username, 
-            "Login Info", 
-            JOptionPane.INFORMATION_MESSAGE);
+        if (authService.login(username, password)) {
+            //parent.showMainContent();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Invalid username or password", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
