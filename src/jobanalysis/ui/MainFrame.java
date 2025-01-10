@@ -9,6 +9,7 @@ public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private LoginPanel loginPanel;
     private RegisterPanel registerPanel;
+    private DashboardPanel dashboardPanel;
     
  // Define common colors and fonts that can be used across panels
     public static final Color PRIMARY_COLOR = new Color(70, 130, 180); // Steel Blue
@@ -17,6 +18,9 @@ public class MainFrame extends JFrame {
     public static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 32);
     public static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 14);
     public static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
+    public static final Color SECONDARY_COLOR = new Color(108, 117, 125);
+
+
     
     public MainFrame() {
         this.setTitle("Job Analysis System");
@@ -29,6 +33,7 @@ public class MainFrame extends JFrame {
         // Initialize all panels
         loginPanel = new LoginPanel(this);
         registerPanel = new RegisterPanel(this);
+        dashboardPanel = new DashboardPanel(this);
         //scrapingPanel = new ScrapingPanel();
         //mlPanel = new MLPanel();
         //dashboardPanel = new DashboardPanel();
@@ -36,6 +41,7 @@ public class MainFrame extends JFrame {
         // Add all panels to the card layout
         mainPanel.add(loginPanel, "login");
         mainPanel.add(registerPanel, "register");
+        mainPanel.add(dashboardPanel, "dashboard");
         //mainPanel.add(scrapingPanel, "scraping");
         //mainPanel.add(mlPanel, "ml");
         //mainPanel.add(dashboardPanel, "dashboard");
@@ -81,5 +87,7 @@ public class MainFrame extends JFrame {
     public void showRegister() {
         cardLayout.show(mainPanel, "register");
     }
-
+    public void showDashboard() {
+        cardLayout.show(mainPanel, "dashboard");
+    }
 }
