@@ -13,18 +13,18 @@ public class JobRepository {
 
     public JobRepository() {
         this.collection = MongoDBConfig.getInstance()
-                         .getDatabase()
-                         .getCollection("jobOffers");
+                .getDatabase()
+                .getCollection("jobOffers");
     }
 
     public void saveJobOffer(JobOffer offer) {
         Document doc = new Document()
-            .append("title", offer.getTitle())
-            .append("company", offer.getCompany())
-            .append("description", offer.getDescription())
-            .append("location", offer.getLocation())
-            .append("scrapedDate", new Date())
-            .append("sourceUrl", offer.getSourceUrl());
+                .append("title", offer.getTitle())
+                .append("company", offer.getCompany())
+                .append("description", offer.getDescription())
+                .append("location", offer.getLocation())
+                .append("scrapedDate", new Date())
+                .append("sourceUrl", offer.getUrl()); // Changed from getSourceUrl to getUrl to match JobOffer class
 
         collection.insertOne(doc);
     }
@@ -32,13 +32,13 @@ public class JobRepository {
     public List<JobOffer> getAllJobOffers() {
         List<JobOffer> offers = new ArrayList<>();
         collection.find().forEach(doc -> {
-            JobOffer offer = new JobOffer(
-                doc.getString("title"),
-                doc.getString("company"),
-                doc.getString("description"),
-                doc.getString("location"),
-                doc.getString("sourceUrl")
-            );
+            JobOffer offer = new JobOffer.Builder()
+                    .setTitle(doc.getString("title"))
+                    .setCompany(doc.getString("company"))
+                    .setDescription(doc.getString("description"))
+                    .setLocation(doc.getString("location"))
+                    .setUrl(doc.getString("sourceUrl"))
+                    .build();
             offers.add(offer);
         });
         return offers;

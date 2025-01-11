@@ -104,20 +104,17 @@ public class LoginPanel extends JPanel {
         String username = userField.getText();
         String password = new String(passwordField.getPassword());
         
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "Please fill in all fields", 
-                "Error", 
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        if (authService.login(username, password)) {
-            //parent.showMainContent();
+        if (!username.isEmpty() && !password.isEmpty()) {
+            if (authService.login(username, password)) {
+                parent.showScraper();  // Show scraper panel after successful login
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Invalid username or password", "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
         } else {
             JOptionPane.showMessageDialog(this, 
-                "Invalid username or password", 
-                "Error", 
+                "Please fill in all fields", "Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
     }
