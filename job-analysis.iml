@@ -71,5 +71,18 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
   </component>
 </module>

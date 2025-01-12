@@ -5,345 +5,285 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class JSoupScraper {
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
-    private static final int TIMEOUT = 10000;
-    private final Random random = new Random();
-
     private static final String[] USER_AGENTS = {
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/89.0",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/91.0.4472.114 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/91.0.864.59"
     };
+    private static final int TIMEOUT = 30000;
+    private final Random random = new Random();
+    private static final Pattern SALARY_PATTERN = Pattern.compile("\\$?(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{2})?(?:k|K)?)\\s*-?\\s*\\$?(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{2})?(?:k|K)?)?\\s*(?:per|a|/)?\\s*(?:year|yr|month|mo|hour|hr|annual|annually)?");
+    private static final Pattern EXPERIENCE_PATTERN = Pattern.compile("(\\d+(?:\\.\\d+)?)[+]?\\s*(?:-\\s*\\d+)?\\s*(?:year|yr)s?\\s*(?:of)?\\s*experience", Pattern.CASE_INSENSITIVE);
+
+    static {
+        // Set ChromeDriver path here if needed
+        // System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+    }
 
     public List<JobOffer> scrapeJobPortal(String portalName, String url) {
-        System.out.println("Scraping " + portalName + " with URL: " + url);
+        System.out.println("Starting scrape for " + portalName + " at URL: " + url);
         return switch (portalName.toLowerCase()) {
-            case "linkedin" -> scrapeLinkedIn(url);
-            case "indeed" -> scrapeIndeed(url);
-            default -> scrapeGeneric(url);
+            case "linkedin" -> scrapeWithSelenium(url, this::parseLinkedInJob);
+            case "indeed" -> scrapeWithSelenium(url, this::parseIndeedJob);
+            default -> scrapeWithSelenium(url, this::parseGenericJob);
         };
     }
 
-    public List<JobOffer> scrapeIndeed(String url) {
+    private List<JobOffer> scrapeWithSelenium(String url, JobParser parser) {
+        WebDriver driver = null;
         List<JobOffer> jobs = new ArrayList<>();
         try {
-            System.out.println("Scraping Indeed URL: " + url);
-            Document doc = getDocument(url);
+            driver = initializeDriver();
+            System.out.println("Loading page: " + url);
+            driver.get(url);
+            waitAndScroll(driver);
 
-            Elements jobCards = doc.select(String.join(",",
-                    "div.job_seen_beacon",
-                    "div.jobsearch-ResultsList > div",
-                    "div[class*=job-card]",
-                    "div[class*=tapItem]",
-                    "div[data-jk]",
-                    "td.resultContent",
-                    "div[class*=job_seen_beacon]",
-                    "div[class*=desktop-job-card]"
-            ));
+            Document doc = Jsoup.parse(driver.getPageSource());
+            List<JobOffer> basicJobs = parser.parseJobs(doc);
+            System.out.println("Found " + basicJobs.size() + " jobs, fetching details...");
 
-            System.out.println("Found " + jobCards.size() + " Indeed job cards");
-
-            for (Element card : jobCards) {
+            for (JobOffer basicJob : basicJobs) {
                 try {
-                    String title = findFirstNonEmpty(card,
-                            ".jobTitle",
-                            "h2.title",
-                            "a[data-jk]",
-                            "span[title]",
-                            "a[id^=job_]",
-                            "h2[class*=title]",
-                            "h2[class*=jobTitle]",
-                            "a[class*=jobtitle]"
-                    );
-
-                    String company = findFirstNonEmpty(card,
-                            ".companyName",
-                            "span.company",
-                            "[data-company-name]",
-                            "div[class*=company]",
-                            "span[class*=companyName]",
-                            "a[data-tn-element='companyName']"
-                    );
-
-                    String location = findFirstNonEmpty(card,
-                            ".companyLocation",
-                            "div[class*=location]",
-                            ".location",
-                            "span[class*=location]"
-                    );
-
-                    String salary = findFirstNonEmpty(card,
-                            ".salary-snippet",
-                            ".estimated-salary",
-                            "div[class*=salary]",
-                            "span[class*=salary]",
-                            ".salaryText"
-                    );
-
-                    String description = findFirstNonEmpty(card,
-                            ".job-snippet",
-                            ".summary",
-                            "div[class*=description]",
-                            "li[class*=description]",
-                            ".jobDescriptionText",
-                            "div[class*=snippet]"
-                    );
-
-                    // Extract job URL
-                    String jobUrl = "";
-                    Element linkElement = card.select("a[id^=job_], a[data-jk], a[class*=title], a[href*=viewjob], a[href*=jobs]").first();
-                    if (linkElement != null) {
-                        jobUrl = linkElement.attr("href");
-                        if (!jobUrl.startsWith("http")) {
-                            jobUrl = "https://indeed.com" + jobUrl;
-                        }
-                    }
-
-                    // Extract additional details
-                    String employmentType = findFirstNonEmpty(card,
-                            "[class*=jobTypes]",
-                            "[class*=employmentType]",
-                            "[class*=job-type]"
-                    );
-
-                    String postedDate = findFirstNonEmpty(card,
-                            ".date",
-                            "span[class*=date]",
-                            "div[class*=posted]"
-                    );
-
-                    System.out.printf("Found Indeed job: %s at %s%n", title, company);
-
-                    if (!title.isEmpty() && !company.isEmpty()) {
-                        jobs.add(new JobOffer.Builder()
-                                .setTitle(cleanText(title))
-                                .setCompany(cleanText(company))
-                                .setLocation(cleanText(location))
-                                .setSalary(cleanText(salary))
-                                .setDescription(cleanText(description))
-                                .setUrl(jobUrl)
-                                .setEmploymentType(cleanText(employmentType))
-                                .setPostedDate(cleanText(postedDate))
-                                .build());
-                    }
+                    JobOffer detailedJob = scrapeJobDetails(basicJob, driver);
+                    jobs.add(detailedJob);
+                    Thread.sleep(1000 + random.nextInt(1000));
                 } catch (Exception e) {
-                    System.err.println("Error processing Indeed job card: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error scraping Indeed: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return jobs;
-    }
-
-    public List<JobOffer> scrapeLinkedIn(String url) {
-        List<JobOffer> jobs = new ArrayList<>();
-        try {
-            System.out.println("Scraping LinkedIn URL: " + url);
-            Document doc = getDocument(url);
-
-            Elements jobCards = doc.select(String.join(",",
-                    ".jobs-search__results-list > li",
-                    "div[class*=job-card]",
-                    "div[class*=job-search-card]",
-                    "div[class*=job-result-card]",
-                    ".jobs-search-results__list-item",
-                    "div[class*=base-card]"
-            ));
-
-            System.out.println("Found " + jobCards.size() + " LinkedIn job cards");
-
-            for (Element card : jobCards) {
-                try {
-                    String title = findFirstNonEmpty(card,
-                            ".base-search-card__title",
-                            ".job-card-list__title",
-                            "h3[class*=title]",
-                            ".jobs-search-result-item__title",
-                            "h3[class*=base-search]"
-                    );
-
-                    String company = findFirstNonEmpty(card,
-                            ".base-search-card__subtitle",
-                            ".job-card-container__company-name",
-                            ".job-result-card__subtitle",
-                            "h4[class*=company]",
-                            "[class*=company-name]",
-                            "a[class*=company]"
-                    );
-
-                    String location = findFirstNonEmpty(card,
-                            ".job-search-card__location",
-                            ".job-result-card__location",
-                            "[class*=location]",
-                            ".job-card-container__metadata-item",
-                            "span[class*=location]"
-                    );
-
-                    String jobUrl = card.select(String.join(",",
-                            "a.base-card__full-link",
-                            "a[class*=job-card]",
-                            "a[class*=result-card]",
-                            "a[href*='/jobs/view/']"
-                    )).attr("href");
-
-                    // Get additional details
-                    String workplaceType = findFirstNonEmpty(card,
-                            "[class*=workplace-type]",
-                            "span[class*=remote]"
-                    );
-
-                    String employmentType = findFirstNonEmpty(card,
-                            ".job-search-card__job-type",
-                            "[class*=job-type]",
-                            "span[class*=type]"
-                    );
-
-                    System.out.printf("Found LinkedIn job: %s at %s%n", title, company);
-
-                    if (!title.isEmpty() || !company.isEmpty()) {
-                        jobs.add(new JobOffer.Builder()
-                                .setTitle(cleanText(title))
-                                .setCompany(cleanText(company))
-                                .setLocation(cleanText(location))
-                                .setUrl(jobUrl)
-                                .setWorkplaceType(cleanText(workplaceType))
-                                .setEmploymentType(cleanText(employmentType))
-                                .build());
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error processing LinkedIn job card: " + e.getMessage());
-                    e.printStackTrace();
+                    System.err.println("Error getting details for job: " + basicJob.getTitle());
+                    jobs.add(basicJob);
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error scraping LinkedIn: " + e.getMessage());
+            System.err.println("Error during scraping: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
         }
         return jobs;
     }
 
-    public List<JobOffer> scrapeGeneric(String url) {
-        List<JobOffer> jobs = new ArrayList<>();
+    private JobOffer scrapeJobDetails(JobOffer basicJob, WebDriver driver) throws InterruptedException {
+        System.out.println("Getting details for: " + basicJob.getTitle());
+        driver.get(basicJob.getUrl());
+        Thread.sleep(2000);
+
+        Document doc = Jsoup.parse(driver.getPageSource());
+        return enhanceJobOffer(basicJob, doc);
+    }
+
+    private JobOffer enhanceJobOffer(JobOffer basicJob, Document doc) {
         try {
-            if (!url.startsWith("http")) {
-                url = "https://" + url;
-            }
-            System.out.println("Scraping generic URL: " + url);
-            Document doc = getDocument(url);
+            String fullDescription = extractFullDescription(doc);
+            String requirements = extractRequirements(doc);
+            String experienceLevel = extractExperienceLevel(doc, fullDescription);
+            String benefits = extractBenefits(doc);
+            String companyInfo = extractCompanyInfo(doc);
 
-            Elements jobCards = doc.select(String.join(",",
-                    "div[class*=job]",
-                    "div[class*=card]",
-                    "div[class*=position]",
-                    "article",
-                    "div[class*=vacancy]",
-                    "div[class*=listing]",
-                    ".job-search-card",
-                    ".job_seen_beacon",
-                    "div[data-job-id]",
-                    "li[class*=job]"
-            ));
-
-            System.out.println("Found " + jobCards.size() + " generic job cards");
-
-            for (Element card : jobCards) {
-                try {
-                    String title = findFirstNonEmpty(card,
-                            "h1,h2,h3,h4",
-                            "[class*=title]",
-                            "a[class*=job]",
-                            "a[class*=position]"
-                    );
-
-                    String company = findFirstNonEmpty(card,
-                            "[class*=company]",
-                            "[class*=employer]",
-                            "[class*=organization]"
-                    );
-
-                    String location = findFirstNonEmpty(card,
-                            "[class*=location]",
-                            "[class*=address]",
-                            "[class*=city]"
-                    );
-
-                    String description = findFirstNonEmpty(card,
-                            "[class*=description]",
-                            "[class*=summary]",
-                            "p"
-                    );
-
-                    String jobUrl = card.select("a").attr("href");
-                    if (!jobUrl.startsWith("http")) {
-                        if (jobUrl.startsWith("/")) {
-                            jobUrl = new java.net.URL(new java.net.URL(url), jobUrl).toString();
-                        } else {
-                            jobUrl = url;
-                        }
-                    }
-
-                    System.out.printf("Found generic job: %s at %s%n", title, company);
-
-                    if (!title.isEmpty() || !company.isEmpty()) {
-                        jobs.add(new JobOffer.Builder()
-                                .setTitle(cleanText(title))
-                                .setCompany(cleanText(company))
-                                .setLocation(cleanText(location))
-                                .setDescription(cleanText(description))
-                                .setUrl(jobUrl)
-                                .build());
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error processing generic job card: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
+            return new JobOffer.Builder()
+                    .setTitle(basicJob.getTitle())
+                    .setCompany(basicJob.getCompany())
+                    .setLocation(basicJob.getLocation())
+                    .setSalary(basicJob.getSalary())
+                    .setDescription(fullDescription)
+                    .setRequiredSkills(requirements)
+                    .setEmploymentType(basicJob.getEmploymentType())
+                    .setExperienceLevel(experienceLevel)
+                    .setWorkplaceType(basicJob.getWorkplaceType())
+                    .setPostedDate(basicJob.getPostedDate())
+                    .setBenefits(benefits)
+                    .setCompanyDescription(companyInfo)
+                    .setUrl(basicJob.getUrl())
+                    .build();
         } catch (Exception e) {
-            System.err.println("Error scraping generic site: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error enhancing job offer: " + e.getMessage());
+            return basicJob;
         }
-        return jobs;
     }
 
-    public List<JobOffer> scrapeMultiplePages(String baseUrl, int numberOfPages) {
-        List<JobOffer> allJobs = new ArrayList<>();
-        for (int page = 1; page <= numberOfPages; page++) {
-            System.out.println("Scraping page " + page + " of " + numberOfPages);
-            String pageUrl = baseUrl + (baseUrl.contains("?") ? "&" : "?") + "start=" + ((page - 1) * 10);
-            allJobs.addAll(scrapeJobPortal("generic", pageUrl));
+    private List<JobOffer> parseLinkedInJob(Document doc) {
+        List<JobOffer> jobs = new ArrayList<>();
+        Elements jobCards = doc.select(".jobs-search__results-list > li");
 
-            // Add random delay between pages
+        for (Element card : jobCards) {
             try {
-                Thread.sleep(1500 + random.nextInt(2000));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+                String title = findFirstMatch(card,
+                        "h3.base-search-card__title",
+                        "h3[class*=title]",
+                        ".job-search-card__title"
+                );
+
+                String company = findFirstMatch(card,
+                        ".base-search-card__subtitle",
+                        ".company-name",
+                        ".job-search-card__subtitle",
+                        "[data-test-id=company-name]"
+                );
+
+                String location = findFirstMatch(card,
+                        ".job-search-card__location",
+                        ".base-search-card__metadata",
+                        "[data-test-id=location]"
+                );
+
+                String salary = findFirstMatch(card,
+                        ".job-search-card__salary-info",
+                        "span[class*=salary]",
+                        "div[class*=compensation]"
+                );
+
+                String url = card.select("a.base-card__full-link").attr("href");
+
+                if (!title.isEmpty() && !company.isEmpty()) {
+                    jobs.add(createBasicJobOffer(title, company, location, salary, url));
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing LinkedIn job: " + e.getMessage());
             }
         }
-        return allJobs;
+        return jobs;
     }
 
-    private Document getDocument(String url) throws IOException {
-        String userAgent = USER_AGENTS[random.nextInt(USER_AGENTS.length)];
-        return Jsoup.connect(url)
-                .userAgent(userAgent)
-                .timeout(TIMEOUT)
-                .get();
+    private List<JobOffer> parseIndeedJob(Document doc) {
+        List<JobOffer> jobs = new ArrayList<>();
+        Elements jobCards = doc.select("div.job_seen_beacon, div.jobsearch-ResultsList > div");
+
+        for (Element card : jobCards) {
+            try {
+                String title = findFirstMatch(card,
+                        "h2.jobTitle span[title]",
+                        "h2.jobTitle",
+                        "a.jcs-JobTitle"
+                );
+
+                String company = findFirstMatch(card,
+                        "span.companyName",
+                        "a.companyName",
+                        "[data-testid=company-name]"
+                );
+
+                String location = findFirstMatch(card,
+                        ".companyLocation",
+                        "div[class*=location]"
+                );
+
+                String salary = findFirstMatch(card,
+                        ".salary-snippet",
+                        ".estimated-salary",
+                        "div[class*=salary]"
+                );
+
+                String jobUrl = card.select("a[id^=job_], a[data-jk]").attr("href");
+                if (!jobUrl.startsWith("http")) {
+                    jobUrl = "https://indeed.com" + jobUrl;
+                }
+
+                if (!title.isEmpty() && !company.isEmpty()) {
+                    jobs.add(createBasicJobOffer(title, company, location, salary, jobUrl));
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing Indeed job: " + e.getMessage());
+            }
+        }
+        return jobs;
     }
 
-    private String findFirstNonEmpty(Element element, String... selectors) {
+    private List<JobOffer> parseGenericJob(Document doc) {
+        List<JobOffer> jobs = new ArrayList<>();
+        Elements jobCards = doc.select("div[class*=job], div[class*=vacancy], article");
+
+        for (Element card : jobCards) {
+            try {
+                String title = findFirstMatch(card,
+                        "h1,h2,h3,h4",
+                        "[class*=title]",
+                        "a[class*=job]"
+                );
+
+                String company = findFirstMatch(card,
+                        "[class*=company]",
+                        "[class*=employer]",
+                        "[class*=organization]"
+                );
+
+                String location = findFirstMatch(card,
+                        "[class*=location]",
+                        "[class*=address]",
+                        "[class*=city]"
+                );
+
+                String salary = findFirstMatch(card,
+                        "[class*=salary]",
+                        "[class*=compensation]",
+                        "*:contains($)"
+                );
+
+                String jobUrl = findUrl(card, "a");
+
+                if (!title.isEmpty() || !company.isEmpty()) {
+                    jobs.add(createBasicJobOffer(title, company, location, salary, jobUrl));
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing generic job: " + e.getMessage());
+            }
+        }
+        return jobs;
+    }
+
+    private WebDriver initializeDriver() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(
+                "--headless=new",
+                "--disable-gpu",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--remote-allow-origins=*",
+                "--window-size=1920,1080"
+        );
+        return new ChromeDriver(options);
+    }
+
+    private void waitAndScroll(WebDriver driver) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            Thread.sleep(5000);
+
+            long lastHeight = (long) js.executeScript("return document.documentElement.scrollHeight");
+            int noChangeCount = 0;
+
+            while (noChangeCount < 3) {
+                js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight)");
+                Thread.sleep(3000);
+
+                long newHeight = (long) js.executeScript("return document.documentElement.scrollHeight");
+                if (newHeight == lastHeight) {
+                    noChangeCount++;
+                } else {
+                    noChangeCount = 0;
+                    lastHeight = newHeight;
+                }
+
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String findFirstMatch(Element element, String... selectors) {
         for (String selector : selectors) {
             try {
                 Elements found = element.select(selector);
@@ -360,7 +300,182 @@ public class JSoupScraper {
         return "";
     }
 
+    private String extractFullDescription(Document doc) {
+        return findFirstMatch(doc,
+                "#job-details",
+                ".description__text",
+                "#jobDescriptionText",
+                "[class*=description]",
+                ".content"
+        );
+    }
+
+    private String extractRequirements(Document doc) {
+        return findFirstMatch(doc,
+                ".description__text ul",
+                "#jobDetailsSection",
+                "[class*=requirements]",
+                "[class*=qualifications]"
+        );
+    }
+
+    private String extractExperienceLevel(Document doc, String description) {
+        String experienceText = findFirstMatch(doc,
+                "li:contains(Seniority level)",
+                "div[class*=experience-level]",
+                "span[class*=experience]"
+        );
+
+        if (experienceText.isEmpty() && description != null) {
+            Matcher matcher = EXPERIENCE_PATTERN.matcher(description);
+            if (matcher.find()) {
+                int years = Integer.parseInt(matcher.group(1));
+                return categorizeExperience(years);
+            }
+        }
+        return experienceText;
+    }
+
+    private String extractBenefits(Document doc) {
+        return findFirstMatch(doc,
+                "[class*=benefits]",
+                "div:contains(Benefits)",
+                "section:contains(Benefits)"
+        );
+    }
+
+    private String extractCompanyInfo(Document doc) {
+        return findFirstMatch(doc,
+                ".company-description",
+                "[class*=about-company]",
+                "#companyDetails"
+        );
+    }
+
+    private String categorizeExperience(int years) {
+        if (years <= 1) return "Entry Level (0-1 years)";
+        if (years <= 3) return "Junior (1-3 years)";
+        if (years <= 5) return "Mid-Level (3-5 years)";
+        if (years <= 8) return "Senior (5-8 years)";
+        return "Expert (8+ years)";
+    }
+
+    private JobOffer createBasicJobOffer(String title, String company, String location, String salary, String url) {
+        return new JobOffer.Builder()
+                .setTitle(cleanText(title))
+                .setCompany(cleanText(company))
+                .setLocation(cleanText(location))
+                .setSalary(cleanText(salary))
+                .setUrl(url)
+                .build();
+    }
+
+    private String findUrl(Element element, String selector) {
+        Element link = element.select(selector).first();
+        return link != null ? link.attr("href") : "";
+    }
+
     private String cleanText(String text) {
-        return text.replaceAll("[\\s\\u00A0]+", " ").trim();
+        return text != null ? text.replaceAll("[\\s\\u00A0]+", " ").trim() : "";
+    }
+
+    @FunctionalInterface
+    private interface JobParser {
+        List<JobOffer> parseJobs(Document doc);
+    }
+
+    public List<JobOffer> scrapeMultiplePages(String baseUrl, int numberOfPages) {
+        List<JobOffer> allJobs = new ArrayList<>();
+        for (int page = 1; page <= numberOfPages; page++) {
+            System.out.println("Scraping page " + page + " of " + numberOfPages);
+            String pageUrl = baseUrl + (baseUrl.contains("?") ? "&" : "?") + "start=" + ((page - 1) * 10);
+            allJobs.addAll(scrapeJobPortal("generic", pageUrl));
+
+            // Add random delay between pages to avoid blocking
+            try {
+                Thread.sleep(1500 + random.nextInt(2000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        return allJobs;
+    }
+
+    private Document getDocument(String url) throws IOException {
+        int maxRetries = 3;
+        int currentTry = 0;
+        int delay = 2000; // Initial delay in milliseconds
+
+        while (currentTry < maxRetries) {
+            try {
+                return Jsoup.connect(url)
+                        .userAgent(USER_AGENTS[random.nextInt(USER_AGENTS.length)])
+                        .timeout(TIMEOUT)
+                        .get();
+            } catch (IOException e) {
+                currentTry++;
+                if (currentTry == maxRetries) {
+                    throw e;
+                }
+                try {
+                    // Exponential backoff
+                    Thread.sleep(delay * (long) Math.pow(2, currentTry - 1));
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted during retry", e);
+                }
+            }
+        }
+        throw new IOException("Failed after " + maxRetries + " retries");
+    }
+
+    private String normalizeUrl(String url, String baseUrl) {
+        if (url.startsWith("http")) {
+            return url;
+        } else if (url.startsWith("/")) {
+            try {
+                return new java.net.URL(new java.net.URL(baseUrl), url).toString();
+            } catch (Exception e) {
+                return baseUrl + url;
+            }
+        }
+        return baseUrl + "/" + url;
+    }
+
+    private String extractPostedDate(Document doc) {
+        String dateText = findFirstMatch(doc,
+                "time[datetime]",
+                "span[class*=posted]",
+                "div[class*=posted]",
+                "span[class*=date]"
+        );
+
+        if (!dateText.isEmpty()) {
+            return dateText;
+        }
+
+        // Try to find date attribute
+        Element timeElement = doc.select("time[datetime]").first();
+        return timeElement != null ? timeElement.attr("datetime") : "";
+    }
+
+    private String parseSalaryRange(String salaryText) {
+        if (salaryText == null || salaryText.isEmpty()) {
+            return "";
+        }
+
+        Matcher matcher = SALARY_PATTERN.matcher(salaryText);
+        if (matcher.find()) {
+            String min = matcher.group(1);
+            String max = matcher.group(2);
+
+            if (min != null && max != null) {
+                return min + " - " + max + " per year";
+            } else if (min != null) {
+                return min + "+ per year";
+            }
+        }
+        return salaryText;
     }
 }
