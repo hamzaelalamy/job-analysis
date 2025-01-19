@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="mysql-connector-j-8.0.31 (2)">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.31 (2).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.31 (1).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.31.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mongodb-driver-sync-4.11.1.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mongodb-driver-core-4.11.1.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/slf4j-simple-2.0.9.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/slf4j-api-2.0.9.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jsoup-1.18.3.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/bson-4.11.1.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" type="SOURCES" />
+  </library>
+</component>

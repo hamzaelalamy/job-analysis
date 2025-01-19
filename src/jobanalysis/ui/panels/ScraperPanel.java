@@ -3,16 +3,19 @@ package jobanalysis.ui.panels;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Map;
 import jobanalysis.models.JobOffer;
 import jobanalysis.scraping.JSoupScraper;
 import jobanalysis.ui.MainFrame;
+import jobanalysis.ui.panels.DashboardPanel;
 
 public class ScraperPanel extends JPanel {
     // Core components
     private final MainFrame parent;
     private final JSoupScraper scraper;
+    private final DashboardPanel dashboardPanel;
     private JobDisplayPanel displayPanel;
     private CategoryPanel categoryPanel;
 
@@ -37,7 +40,14 @@ public class ScraperPanel extends JPanel {
     public ScraperPanel(MainFrame parent) {
         this.parent = parent;
         this.scraper = new JSoupScraper();
+        this.displayPanel = new JobDisplayPanel();
+        this.categoryPanel = new CategoryPanel();
+        this.dashboardPanel = new DashboardPanel();
         initializeUI();
+    }
+
+    private static void actionPerformed(ActionEvent e) {
+
     }
 
     private void initializeUI() {
@@ -79,6 +89,10 @@ public class ScraperPanel extends JPanel {
         JPanel controlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         controlButtons.setBackground(MainFrame.BACKGROUND_COLOR);
 
+        // Bouton Dashboard
+        JButton dashboardButton = MainFrame.createStyledButton("Dashboard", "primary");
+        dashboardButton.addActionListener(e -> showDashboard());
+
         JButton helpButton = MainFrame.createStyledButton("Help", "outline");
         helpButton.setPreferredSize(new Dimension(100, 35));
         helpButton.addActionListener(e -> showHelpDialog());
@@ -89,6 +103,7 @@ public class ScraperPanel extends JPanel {
 
         controlButtons.add(helpButton);
         controlButtons.add(logoutButton);
+        controlButtons.add(dashboardButton);
 
         headerPanel.add(controlButtons, BorderLayout.EAST);
 
@@ -116,6 +131,8 @@ public class ScraperPanel extends JPanel {
         categoryPanel = new CategoryPanel();
         resultsTabbedPane.addTab("Category View", new JScrollPane(categoryPanel));
 
+        // Dashboard view
+        resultsTabbedPane.addTab("Dashboard", new JScrollPane(dashboardPanel));
         mainPanel.add(resultsTabbedPane, BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
@@ -279,6 +296,16 @@ public class ScraperPanel extends JPanel {
         }
     }
 
+    private void showDashboard() {
+        // Sélectionner l'onglet Dashboard
+        for (int i = 0; i < resultsTabbedPane.getTabCount(); i++) {
+            if (resultsTabbedPane.getTitleAt(i).equals("Dashboard")) {
+                resultsTabbedPane.setSelectedIndex(i);
+                break;
+            }
+        }
+    }
+
     private boolean validateInputs() {
         String portal = (String) portalSelector.getSelectedItem();
 
@@ -379,12 +406,15 @@ public class ScraperPanel extends JPanel {
                 statusLabel.setText("No jobs found");
                 showError("No jobs found. Try adjusting your search criteria.");
                 displayPanel.showError();
+                dashboardPanel.updateDashboard(jobs);
             } else {
                 statusLabel.setText("Found " + jobs.size() + " jobs");
                 displayPanel.displayJobs(jobs);
                 categoryPanel.updateJobs(jobs);
+                dashboardPanel.updateDashboard(jobs);
+
                 // Update category counts
-                for (String category : new String[]{"Software Development", "Data Science", "DevOps",
+                for(String category : new String[]{"Software Development", "Data Science", "DevOps",
                         "Design", "Marketing", "Sales", "Management", "Other"}) {
                     categoryPanel.updateCategoryCount(category);
                 }
