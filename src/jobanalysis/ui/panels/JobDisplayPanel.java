@@ -1,7 +1,8 @@
 package jobanalysis.ui.panels;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import jobanalysis.models.JobOffer;
-import jobanalysis.ui.MainFrame;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -24,6 +25,7 @@ public class JobDisplayPanel extends JPanel {
     private final int CARD_WIDTH = 900;
     private final int CARD_HEIGHT = 220;
     private List<JobOffer> currentJobs = new ArrayList<>();
+    private final ObjectMapper objectMapper;
 
     // Custom colors
     private final Color PRIMARY_COLOR = new Color(70, 130, 180);
@@ -35,6 +37,11 @@ public class JobDisplayPanel extends JPanel {
     public JobDisplayPanel() {
         setLayout(new BorderLayout());
         setBackground(BACKGROUND_COLOR);
+
+        // Initialize Jackson ObjectMapper
+        objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
         initializeComponents();
     }
 
@@ -67,10 +74,121 @@ public class JobDisplayPanel extends JPanel {
     }
 
     private void addControlButtons(JPanel controlPanel) {
-        // Export Button
-        JButton exportButton = createStyledButton("Export to CSV", SUCCESS_COLOR);
-        exportButton.addActionListener(e -> exportToCsv(currentJobs));
+        // Export Button with dropdown
+        JButton exportButton = createStyledButton("Export", SUCCESS_COLOR);
+        JPopupMenu exportMenu = new JPopupMenu();
+
+        JMenuItem csvMenuItem = new JMenuItem("Export as CSV");
+        csvMenuItem.addActionListener(e -> exportToCsv(currentJobs));
+
+        JMenuItem jsonMenuItem = new JMenuItem("Export as JSON");
+        jsonMenuItem.addActionListener(e -> exportToJson(currentJobs));
+
+        exportMenu.add(csvMenuItem);
+        exportMenu.add(jsonMenuItem);
+
+        exportButton.addActionListener(e -> {
+            exportMenu.show(exportButton, 0, exportButton.getHeight());
+        });
+
         controlPanel.add(exportButton);
+    }
+
+    private void exportToJson(List<JobOffer> jobs) {
+        if (jobs.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No jobs to export",
+                    "Export Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Jobs as JSON");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("JSON Files", "json"));
+        fileChooser.setSelectedFile(new File("job_listings.json"));
+
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            if (!file.getName().toLowerCase().endsWith(".json")) {
+                file = new File(file.getParentFile(), file.getName() + ".json");
+            }
+
+            try {
+                // Write JSON with pretty printing
+                objectMapper.writeValue(file, jobs);
+
+                JOptionPane.showMessageDialog(this,
+                        "Successfully exported " + jobs.size() + " jobs to JSON!",
+                        "Export Complete",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Error exporting to JSON: " + e.getMessage(),
+                        "Export Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void exportToCsv(List<JobOffer> jobs) {
+        if (jobs.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No jobs to export",
+                    "Export Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Jobs as CSV");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
+        fileChooser.setSelectedFile(new File("job_listings.csv"));
+
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            if (!file.getName().toLowerCase().endsWith(".csv")) {
+                file = new File(file.getParentFile(), file.getName() + ".csv");
+            }
+
+            try (PrintWriter writer = new PrintWriter(file)) {
+                // Write CSV header
+                writer.println("Title,Company,Location,Salary,Description,Employment Type," +
+                        "Posted Date,Workplace Type,Experience Level,Required Skills,Benefits,URL");
+
+                // Write job data
+                for (JobOffer job : jobs) {
+                    writer.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
+                            escapeCSV(job.getTitle()),
+                            escapeCSV(job.getCompany()),
+                            escapeCSV(job.getLocation()),
+                            escapeCSV(job.getSalary()),
+                            escapeCSV(job.getDescription()),
+                            escapeCSV(job.getEmploymentType()),
+                            escapeCSV(job.getPostedDate()),
+                            escapeCSV(job.getWorkplaceType()),
+                            escapeCSV(job.getExperienceLevel()),
+                            escapeCSV(job.getRequiredSkills()),
+                            escapeCSV(job.getBenefits()),
+                            escapeCSV(job.getUrl())
+                    ));
+                }
+
+                JOptionPane.showMessageDialog(this,
+                        "Successfully exported " + jobs.size() + " jobs to CSV!",
+                        "Export Complete",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this,
+                        "Error exporting to CSV: " + e.getMessage(),
+                        "Export Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
     }
 
     public void displayJobs(List<JobOffer> jobs) {
@@ -98,7 +216,6 @@ public class JobDisplayPanel extends JPanel {
         card.setPreferredSize(new Dimension(CARD_WIDTH, CARD_HEIGHT));
         card.setBackground(Color.WHITE);
 
-        // Add hover effect and shadow
         card.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(CARD_BORDER_COLOR, 1, true),
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
@@ -121,29 +238,11 @@ public class JobDisplayPanel extends JPanel {
         companyLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         companyLabel.setForeground(new Color(100, 100, 100));
 
-        // Details Panel (Location, Salary, Posted Date)
+        // Details Panel
         JPanel detailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
         detailsPanel.setBackground(Color.WHITE);
 
-        if (job.getLocation() != null && !job.getLocation().isEmpty()) {
-            addDetailBadge(detailsPanel, "📍", job.getLocation(), new Color(230, 240, 255));
-        }
-
-        if (job.getSalary() != null && !job.getSalary().isEmpty()) {
-            addDetailBadge(detailsPanel, "💰", job.getSalary(), new Color(230, 255, 240));
-        }
-
-        if (job.getPostedDate() != null && !job.getPostedDate().isEmpty()) {
-            addDetailBadge(detailsPanel, "📅", job.getPostedDate(), new Color(255, 240, 230));
-        }
-
-        if (job.getEmploymentType() != null && !job.getEmploymentType().isEmpty()) {
-            addDetailBadge(detailsPanel, "💼", job.getEmploymentType(), new Color(240, 230, 255));
-        }
-
-        if (job.getWorkplaceType() != null && !job.getWorkplaceType().isEmpty()) {
-            addDetailBadge(detailsPanel, "🏢", job.getWorkplaceType(), new Color(255, 230, 245));
-        }
+        addDetailBadgesIfPresent(detailsPanel, job);
 
         // Description Panel
         JTextArea descArea = new JTextArea();
@@ -185,6 +284,27 @@ public class JobDisplayPanel extends JPanel {
         card.add(actionPanel, BorderLayout.EAST);
 
         return card;
+    }
+
+    private void addDetailBadgesIfPresent(JPanel detailsPanel, JobOffer job) {
+        if (job.getLocation() != null && !job.getLocation().isEmpty()) {
+            addDetailBadge(detailsPanel, "📍", job.getLocation(), new Color(230, 240, 255));
+        }
+        if (job.getSalary() != null && !job.getSalary().isEmpty()) {
+            addDetailBadge(detailsPanel, "💰", job.getSalary(), new Color(230, 255, 240));
+        }
+        if (job.getPostedDate() != null && !job.getPostedDate().isEmpty()) {
+            addDetailBadge(detailsPanel, "📅", job.getPostedDate(), new Color(255, 240, 230));
+        }
+        if (job.getEmploymentType() != null && !job.getEmploymentType().isEmpty()) {
+            addDetailBadge(detailsPanel, "💼", job.getEmploymentType(), new Color(240, 230, 255));
+        }
+        if (job.getWorkplaceType() != null && !job.getWorkplaceType().isEmpty()) {
+            addDetailBadge(detailsPanel, "🏢", job.getWorkplaceType(), new Color(255, 230, 245));
+        }
+        if (job.getExperienceLevel() != null && !job.getExperienceLevel().isEmpty()) {
+            addDetailBadge(detailsPanel, "⭐", job.getExperienceLevel(), new Color(255, 245, 230));
+        }
     }
 
     private JPanel createLogoPanel(String company) {
@@ -234,6 +354,7 @@ public class JobDisplayPanel extends JPanel {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(color.darker());
             }
+
             public void mouseExited(MouseEvent e) {
                 button.setBackground(color);
             }
@@ -259,61 +380,6 @@ public class JobDisplayPanel extends JPanel {
                 "Job saved successfully!",
                 "Success",
                 JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void exportToCsv(List<JobOffer> jobs) {
-        if (jobs.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "No jobs to export",
-                    "Export Error",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save Jobs as CSV");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files", "csv"));
-        fileChooser.setSelectedFile(new File("job_listings.csv"));
-
-        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            if (!file.getName().toLowerCase().endsWith(".csv")) {
-                file = new File(file.getParentFile(), file.getName() + ".csv");
-            }
-
-            try (PrintWriter writer = new PrintWriter(file)) {
-                // Write CSV header
-                writer.println("Title,Company,Location,Salary,Description,Employment Type," +
-                        "Posted Date,Workplace Type,URL");
-
-                // Write job data
-                for (JobOffer job : jobs) {
-                    writer.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
-                            escapeCSV(job.getTitle()),
-                            escapeCSV(job.getCompany()),
-                            escapeCSV(job.getLocation()),
-                            escapeCSV(job.getSalary()),
-                            escapeCSV(job.getDescription()),
-                            escapeCSV(job.getEmploymentType()),
-                            escapeCSV(job.getPostedDate()),
-                            escapeCSV(job.getWorkplaceType()),
-                            escapeCSV(job.getUrl())
-                    ));
-                }
-
-                JOptionPane.showMessageDialog(this,
-                        "Successfully exported " + jobs.size() + " jobs to CSV!",
-                        "Export Complete",
-                        JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(this,
-                        "Error exporting to CSV: " + e.getMessage(),
-                        "Export Error",
-                        JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-            }
-        }
     }
 
     private String escapeCSV(String value) {
