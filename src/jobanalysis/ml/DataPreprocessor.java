@@ -1,8 +1,9 @@
 package jobanalysis.ml;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class DataPreprocessor {
     
-    // Adding @JsonIgnoreProperties to handle any unknown fields in the JSON
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class JobListing {
         public String title;
@@ -29,19 +29,14 @@ public class DataPreprocessor {
         public String companyDescription;
     }
 
-    public static List<String[]> preprocessJSON(String resourcePath) {
+    public static List<String[]> preprocessJSON(String filePath) {
         List<String[]> processedData = new ArrayList<>();
         int totalRows = 0;
         int skippedRows = 0;
 
         try {
-            
-            InputStream inputStream = DataPreprocessor.class.getClassLoader().getResourceAsStream(resourcePath);
-            if (inputStream == null) {
-                throw new FileNotFoundException("Resource not found: " + resourcePath);
-            }
-
-            String jsonContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            // Read the file directly using the provided path
+            String jsonContent = Files.readString(Path.of(filePath));
             
             ObjectMapper mapper = new ObjectMapper();
             List<JobListing> jobListings = mapper.readValue(jsonContent, 
@@ -65,13 +60,13 @@ public class DataPreprocessor {
             System.out.println("Rows kept: " + processedData.size());
 
         } catch (IOException e) {
+            System.err.println("Error processing file: " + e.getMessage());
             e.printStackTrace();
         }
         return processedData;
     }
 
     private static String[] cleanJobListing(JobListing job) {
-        
         if (job.title == null || job.description == null) {
             return null;
         }
@@ -82,14 +77,12 @@ public class DataPreprocessor {
         String companyName = cleanText(job.company);
         String skills = cleanText(job.requiredSkills);
 
-        
         if (jobTitle.isEmpty() || jobDescription.isEmpty() || 
             jobTitle.matches("\\*+") || jobDescription.matches("\\*+") ||
             jobTitle.equalsIgnoreCase("sign in to create job alert")) {
             return null;
         }
 
-        
         return new String[]{jobTitle, companyName, location, jobDescription, skills};
     }
 
@@ -111,55 +104,34 @@ public class DataPreprocessor {
         return text;
     }
 
-    public static void saveProcessedData(List<String[]> data, String outputFileName) {
-        System.out.println("Saving processed data. Total rows: " + data.size());
+    public static void saveProcessedDataAsJSON(List<String[]> data, String outputPath) {
+        System.out.println("Saving processed data as JSON. Total rows: " + data.size());
         if (data.isEmpty()) {
             System.out.println("No data to save. Exiting...");
             return;
         }
 
         try {
-            URL resourceUrl = DataPreprocessor.class.getClassLoader().getResource("");
-            if (resourceUrl == null) {
-                throw new FileNotFoundException("Could not locate resources directory.");
+            // Convert processed data to JSON objects
+            List<Map<String, String>> jsonData = new ArrayList<>();
+            for (String[] line : data) {
+                Map<String, String> jobObject = new HashMap<>();
+                jobObject.put("Job Title", line[0]);
+                jobObject.put("Company", line[1]);
+                jobObject.put("Location", line[2]);
+                jobObject.put("Description", line[3]);
+                jobObject.put("Required Skills", line[4]);
+                jsonData.add(jobObject);
             }
-            String outputPath = resourceUrl.getPath() + outputFileName;
 
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
-                
-                writer.write("Job Title,Company,Location,Description,Required Skills\n");
-                
-                for (String[] line : data) {
-                    // Properly escape CSV values and handle commas
-                    String csvLine = String.join(",", Arrays.stream(line)
-                        .map(DataPreprocessor::escapeCSV)
-                        .toArray(String[]::new));
-                    writer.write(csvLine + "\n");
-                }
-            }
+            // Write JSON to file using ObjectMapper
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputPath), jsonData);
 
             System.out.println("File saved successfully at: " + outputPath);
         } catch (IOException e) {
+            System.err.println("Error saving JSON file: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    private static String escapeCSV(String value) {
-        if (value == null) return "";
-        // Escape quotes and wrap in quotes if contains comma or newline
-        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
-    }
-
-    public static void main(String[] args) {
-        String inputFileName = "job_listings.json";
-        String outputFileName = "cleaned_job_listings.csv";
-
-        List<String[]> cleanedData = preprocessJSON(inputFileName);
-        saveProcessedData(cleanedData, outputFileName);
-
-        System.out.println("Data preprocessing complete!");
     }
 }

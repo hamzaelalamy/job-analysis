@@ -3,6 +3,9 @@ package jobanalysis.ui;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
+
+import jobanalysis.ui.panels.ClassificationPanel;
+import jobanalysis.ui.panels.FileUploadPanel;
 import jobanalysis.ui.panels.LoginPanel;
 import jobanalysis.ui.panels.RegisterPanel;
 import jobanalysis.ui.panels.ScraperPanel;
@@ -13,6 +16,8 @@ public class MainFrame extends JFrame {
     private LoginPanel loginPanel;
     private RegisterPanel registerPanel;
     private ScraperPanel scraperPanel;
+    private FileUploadPanel fileUploadPanel;
+    private ClassificationPanel classificationPanel;
 
     // Color scheme
     public static final Color PRIMARY_COLOR = new Color(70, 130, 180);
@@ -43,11 +48,15 @@ public class MainFrame extends JFrame {
         loginPanel = new LoginPanel(this);
         registerPanel = new RegisterPanel(this);
         scraperPanel = new ScraperPanel(this);
+        fileUploadPanel = new FileUploadPanel(this);
+        classificationPanel = new ClassificationPanel(this);
 
         // Add all panels to the card layout
         mainPanel.add(loginPanel, "login");
         mainPanel.add(registerPanel, "register");
         mainPanel.add(scraperPanel, "scraper");
+        mainPanel.add(fileUploadPanel, "fileupload");
+        mainPanel.add(classificationPanel, "classification");
 
         add(mainPanel);
         showLogin();
@@ -175,5 +184,13 @@ public class MainFrame extends JFrame {
 
     public void showScraper() {
         cardLayout.show(mainPanel, "scraper");
+    }
+    
+    public void showFileUpload() {
+        cardLayout.show(mainPanel, "fileupload");
+    }
+    
+    public void showClassification() {
+        cardLayout.show(mainPanel, "classification");
     }
 }

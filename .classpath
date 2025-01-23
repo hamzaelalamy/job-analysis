@@ -24,5 +24,17 @@
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-annotations-2.15.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-core-2.15.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-databind-2.15.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.4.0-models-english-kbp.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.4.0-models-arabic.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8-models-french.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8-models.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/jaxb-api-2.4.0-b180830.0359.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/jaxb-impl-2.4.0-b180830.0438.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/protobuf-java-3.25.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-core-0.39.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-ddense-0.39.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-simple-0.39.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/xom.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
