@@ -24,6 +24,7 @@
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-annotations-2.15.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-core-2.15.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-databind-2.15.3.jar"/>
+<<<<<<< HEAD
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.4.0-models-english-kbp.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.4.0-models-arabic.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8-models-french.jar"/>
@@ -36,5 +37,7 @@
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-ddense-0.39.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-simple-0.39.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/xom.jar"/>
+=======
+>>>>>>> 642f0ff28aedb43d110a06581f5ca980d300faaa
 	<classpathentry kind="output" path="bin"/>
 </classpath>
