@@ -18,6 +18,7 @@ public class ScraperPanel extends JPanel {
     private final DashboardPanel dashboardPanel;
     private JobDisplayPanel displayPanel;
     private CategoryPanel categoryPanel;
+    private StatisticPanel statisticPanel;  // Déclarez la variable
 
     // UI Components
     private JPanel searchPanel;
@@ -43,6 +44,7 @@ public class ScraperPanel extends JPanel {
         this.displayPanel = new JobDisplayPanel();
         this.categoryPanel = new CategoryPanel();
         this.dashboardPanel = new DashboardPanel();
+        this.statisticPanel = new StatisticPanel();
         initializeUI();
     }
 
@@ -135,6 +137,8 @@ public class ScraperPanel extends JPanel {
         resultsTabbedPane.addTab("Dashboard", new JScrollPane(dashboardPanel));
         mainPanel.add(resultsTabbedPane, BorderLayout.CENTER);
 
+        statisticPanel = new StatisticPanel();
+        resultsTabbedPane.addTab("Statistiques", new JScrollPane(statisticPanel));
         add(mainPanel, BorderLayout.CENTER);
     }
 
@@ -412,6 +416,7 @@ public class ScraperPanel extends JPanel {
                 displayPanel.displayJobs(jobs);
                 categoryPanel.updateJobs(jobs);
                 dashboardPanel.updateDashboard(jobs);
+                statisticPanel.updateStatistics(jobs);
 
                 // Update category counts
                 for(String category : new String[]{"Software Development", "Data Science", "DevOps",
