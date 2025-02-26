@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.ling.*;
 import edu.stanford.nlp.util.*;
+import jobanalysis.models.JobListing;
 import edu.stanford.nlp.stats.ClassicCounter;
 import edu.stanford.nlp.stats.Counter;
 
@@ -30,6 +31,160 @@ public class JobModelTrainer {
         
         // Create model directory if it doesn't exist
         new File(modelPath).mkdirs();
+    }
+    
+ // 1. Method to read cleaned data
+    private List<JobListing> readCleanedData() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        File cleanedFile = new File("data/cleaned_job_listings.json");
+        
+        if (!cleanedFile.exists()) {
+            throw new FileNotFoundException("Could not find cleaned job listings file at: " + 
+                cleanedFile.getAbsolutePath());
+        }
+        
+        try {
+            // Read the JSON file into a List of JobListing objects
+            List<JobListing> jobListings = mapper.readValue(cleanedFile, 
+                new TypeReference<List<JobListing>>() {});
+                
+            System.out.println("Successfully read " + jobListings.size() + 
+                " job listings from cleaned data file");
+                
+            return jobListings;
+            
+        } catch (IOException e) {
+            System.err.println("Error reading cleaned job listings file: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // 2. Method to determine job category
+    private String determineCategory(JobListing job) {
+        String content = (job.getTitle() + " " + job.getDescription()).toLowerCase();
+        
+        // Development/Engineering
+        if (content.contains("developer") || content.contains("développeur") || 
+            content.contains("engineer") || content.contains("ingénieur") ||
+            content.contains("programmer") || content.contains("programmeur") ||
+            content.contains("coding") || content.contains("programming") ||
+            content.contains("software") || content.contains("full stack") ||
+            content.contains("front end") || content.contains("back end") ||
+            content.contains("web") || content.contains("mobile") ||
+            content.contains("java") || content.contains("python") ||
+            content.contains("javascript") || content.contains("angular") ||
+            content.contains("react") || content.contains("node") ||
+            content.contains("vue") || content.contains(".net") ||
+            content.contains("c#") || content.contains("c++") ||
+            content.contains("php") || content.contains("ruby") ||
+            content.contains("typescript")) {
+            return "DEVELOPMENT";
+        }
+        
+        // IT Security
+        if (content.contains("security") || content.contains("sécurité") ||
+            content.contains("cybersecurity") || content.contains("cyber-security") ||
+            content.contains("information security") || content.contains("sécurité informatique") ||
+            content.contains("sécurité si") || content.contains("pentesting") ||
+            content.contains("penetration testing") || content.contains("ethical hacking") ||
+            content.contains("vulnerability") || content.contains("vulnérabilité") ||
+            content.contains("soc") || content.contains("security operations") ||
+            content.contains("infosec") || content.contains("audit") ||
+            content.contains("compliance") || content.contains("iso27001") ||
+            content.contains("gdpr") || content.contains("rgpd")) {
+            return "SECURITY";
+        }
+        
+        // Data Science/Analytics
+        if (content.contains("data scientist") || content.contains("data science") ||
+            content.contains("machine learning") || content.contains("ml") ||
+            content.contains("artificial intelligence") || content.contains("ai") ||
+            content.contains("deep learning") || content.contains("nlp") ||
+            content.contains("natural language processing") ||
+            content.contains("data mining") || content.contains("statistics") ||
+            content.contains("statistiques") || content.contains("r programming") ||
+            content.contains("pandas") || content.contains("numpy") ||
+            content.contains("tensorflow") || content.contains("pytorch") ||
+            content.contains("scikit-learn") || content.contains("big data") ||
+            content.contains("data engineer") || content.contains("data engineering") ||
+            content.contains("hadoop") || content.contains("spark") ||
+            content.contains("data analyst") || content.contains("analyste de données") ||
+            content.contains("data analysis") || content.contains("analytics")) {
+            return "DATA";
+        }
+        
+        // Networking
+        if (content.contains("network") || content.contains("réseau") ||
+            content.contains("technicien réseau") || content.contains("network technician") ||
+            content.contains("network engineer") || content.contains("ingénieur réseau") ||
+            content.contains("cisco") || content.contains("juniper") ||
+            content.contains("routing") || content.contains("switching") ||
+            content.contains("firewall") || content.contains("vpn") ||
+            content.contains("lan") || content.contains("wan") ||
+            content.contains("wifi") || content.contains("wi-fi") ||
+            content.contains("tcp/ip") || content.contains("network administration") ||
+            content.contains("network infrastructure") ||
+            content.contains("infrastructure réseau") ||
+            content.contains("network architecture")) {
+            return "NETWORKING";
+        }
+        
+        // Business/Management
+        if (content.contains("business analyst") || content.contains("analyste métier") ||
+            content.contains("product owner") || content.contains("scrum master") ||
+            content.contains("project manager") || content.contains("chef de projet") ||
+            content.contains("product manager") || content.contains("program manager") ||
+            content.contains("director") || content.contains("directeur") ||
+            content.contains("chief") || content.contains("cto") ||
+            content.contains("cio") || content.contains("it manager") ||
+            content.contains("team lead") || content.contains("leadership") ||
+            content.contains("management") || content.contains("gestion") ||
+            content.contains("agile") || content.contains("transformation") ||
+            content.contains("strategy") || content.contains("stratégie") ||
+            content.contains("governance") || content.contains("gouvernance")) {
+            return "BUSINESS";
+        }
+        
+        // Sales/Marketing/Commercial
+        if (content.contains("sales") || content.contains("commercial") ||
+            content.contains("marketing") || content.contains("communic") ||
+            content.contains("community manager") || content.contains("social media") ||
+            content.contains("réseaux sociaux") || content.contains("seo") ||
+            content.contains("sem") || content.contains("advertising") ||
+            content.contains("publicité") || content.contains("growth") ||
+            content.contains("account manager") || content.contains("account executive") ||
+            content.contains("business development") ||
+            content.contains("développement commercial") ||
+            content.contains("sales representative") ||
+            content.contains("représentant commercial") ||
+            content.contains("digital marketing") ||
+            content.contains("marketing digital") ||
+            content.contains("brand") || content.contains("marque") ||
+            content.contains("pr") || content.contains("public relations") ||
+            content.contains("content") || content.contains("contenu")) {
+            return "COMMERCIAL";
+        }
+        
+        // Support/Operations
+        if (content.contains("support") || content.contains("helpdesk") ||
+            content.contains("help desk") || content.contains("service desk") ||
+            content.contains("technical support") || content.contains("support technique") ||
+            content.contains("it support") || content.contains("desktop support") ||
+            content.contains("systems administrator") || content.contains("administrateur système") ||
+            content.contains("admin") || content.contains("operations") ||
+            content.contains("devops") || content.contains("sre") ||
+            content.contains("site reliability") || content.contains("infrastructure") ||
+            content.contains("cloud") || content.contains("aws") ||
+            content.contains("azure") || content.contains("gcp") ||
+            content.contains("google cloud") || content.contains("platform") ||
+            content.contains("kubernetes") || content.contains("docker") ||
+            content.contains("virtualization") || content.contains("virtualisation") ||
+            content.contains("vmware")) {
+            return "OPERATIONS";
+        }
+        
+        // Default
+        return "OTHER";
     }
     
     public void trainModel() throws IOException {

@@ -41,6 +41,308 @@ public class JobListingClassifier {
         }
     }
     
+ // 1. Method to extract skills from the job description
+    private Set<String> extractSkills(CoreDocument doc) {
+        Set<String> skills = new HashSet<>();
+        
+        // Common technical skills keywords
+        Set<String> skillKeywords = new HashSet<>(Arrays.asList(
+            "java", "python", "c++", "javascript", "html", "css", "react", "angular", 
+            "node.js", "vue", "typescript", "php", "ruby", "sql", "nosql", "mongodb", 
+            "postgresql", "mysql", "oracle", "aws", "azure", "gcp", "docker", "kubernetes", 
+            "jenkins", "git", "ci/cd", "jira", "agile", "scrum", "devops", "machine learning",
+            "ai", "tensorflow", "pytorch", "data science", "analytics", "power bi", "tableau",
+            "excel", "linux", "windows", "networking", "cybersecurity", "penetration testing",
+            "sécurité", "audit", "pentests", "firewall", "soc", "iam", "gdpr", "iso27001",
+            "marketing", "social media", "facebook", "instagram", "linkedin", "twitter",
+            "communication", "product management", "ux", "ui", "design", "figma", "sketch"
+        ));
+        
+        // Look for skills in the document
+        for (CoreSentence sentence : doc.sentences()) {
+            // Extract n-grams up to length 3
+            for (int i = 0; i < sentence.tokens().size(); i++) {
+                // Single word tokens
+                String token = sentence.tokens().get(i).word().toLowerCase();
+                if (skillKeywords.contains(token)) {
+                    skills.add(token);
+                }
+                
+                // Try bigrams
+                if (i < sentence.tokens().size() - 1) {
+                    String bigram = token + " " + sentence.tokens().get(i + 1).word().toLowerCase();
+                    if (isLikelySkill(bigram)) {
+                        skills.add(bigram);
+                    }
+                }
+                
+                // Try trigrams
+                if (i < sentence.tokens().size() - 2) {
+                    String trigram = token + " " + 
+                                    sentence.tokens().get(i + 1).word().toLowerCase() + " " +
+                                    sentence.tokens().get(i + 2).word().toLowerCase();
+                    if (isLikelySkill(trigram)) {
+                        skills.add(trigram);
+                    }
+                }
+            }
+        }
+        
+        return skills;
+    }
+
+    // Helper method for extractSkills
+    private boolean isLikelySkill(String text) {
+        // Check for common technical phrases
+        return text.matches(".*(machine learning|deep learning|data science|business intelligence|" +
+                            "data analysis|artificial intelligence|cloud computing|web development|" +
+                            "app development|mobile development|full stack|full-stack|front end|" +
+                            "front-end|back end|back-end|devops|data engineering|cyber security|" +
+                            "network security|penetration testing|pen testing|database administration|" +
+                            "data warehouse|software engineering|systems architecture|ui/ux|ui design|" +
+                            "product design|product management|social media marketing).*") ||
+               // Check for specific technologies and frameworks
+               text.matches(".*(react native|node\\.js|angular js|vue js|spring boot|asp\\.net|" +
+                            "\\.net core|express js|django|flask|pandas|numpy|scikit-learn|" +
+                            "tensorflow|pytorch|power bi|tableau|looker|microsoft azure|" +
+                            "amazon web services|google cloud platform|kubernetes|docker|" +
+                            "jenkins|github|gitlab|bitbucket|jira|confluence|salesforce|" +
+                            "wordpress|seo|sem|google analytics|google ads|facebook ads|" +
+                            "instagram ads|linkedin ads|twitter ads).*");
+    }
+
+    // 2. Method to identify experience level
+    private String identifyExperienceLevel(CoreDocument doc) {
+        // Define keyword patterns for different experience levels
+        Map<String, Integer> levelScores = new HashMap<>();
+        levelScores.put("JUNIOR", 0);
+        levelScores.put("MID", 0);
+        levelScores.put("SENIOR", 0);
+        
+        // Indicator terms for different experience levels
+        Set<String> juniorTerms = new HashSet<>(Arrays.asList(
+            "junior", "entry", "graduate", "débutant", "stagiaire", "apprenti", "intern",
+            "entry-level", "entry level", "0-1", "0-2", "1-2", "less than 2"
+        ));
+        
+        Set<String> midTerms = new HashSet<>(Arrays.asList(
+            "mid", "intermediate", "confirmed", "confirmé", "2-3", "2-4", "3-5", "3-4",
+            "quelques années", "medium", "middle", "mid-level", "mid level"
+        ));
+        
+        Set<String> seniorTerms = new HashSet<>(Arrays.asList(
+            "senior", "experienced", "expert", "lead", "principal", "chef", "head",
+            "manager", "director", "5+", "5 years", "5 ans", "6+", "7+", "8+", "10+"
+        ));
+        
+        // Scan document for experience indicators
+        String docText = doc.text().toLowerCase();
+        
+        for (String term : juniorTerms) {
+            if (docText.contains(term)) {
+                levelScores.put("JUNIOR", levelScores.get("JUNIOR") + 1);
+            }
+        }
+        
+        for (String term : midTerms) {
+            if (docText.contains(term)) {
+                levelScores.put("MID", levelScores.get("MID") + 1);
+            }
+        }
+        
+        for (String term : seniorTerms) {
+            if (docText.contains(term)) {
+                levelScores.put("SENIOR", levelScores.get("SENIOR") + 1);
+            }
+        }
+        
+        // Find the experience level with the highest score
+        String level = levelScores.entrySet()
+                                .stream()
+                                .max(Map.Entry.comparingByValue())
+                                .map(Map.Entry::getKey)
+                                .orElse("UNSPECIFIED");
+        
+        // If there's a tie or all are zero, return UNSPECIFIED
+        if (level.equals("UNSPECIFIED") || levelScores.get(level) == 0) {
+            return "UNSPECIFIED";
+        }
+        
+        return level;
+    }
+
+    // 3. Method for rule-based job category classification
+    private String classifyJobCategoryRuleBased(String title, String description) {
+        String content = (title + " " + description).toLowerCase();
+        
+        // Development/Engineering
+        if (content.contains("developer") || content.contains("développeur") || 
+            content.contains("engineer") || content.contains("ingénieur") ||
+            content.contains("programmer") || content.contains("programmeur") ||
+            content.contains("coding") || content.contains("programming") ||
+            content.contains("software") || content.contains("full stack") ||
+            content.contains("front end") || content.contains("back end") ||
+            content.contains("web") || content.contains("mobile") ||
+            content.contains("java") || content.contains("python") ||
+            content.contains("javascript") || content.contains("angular") ||
+            content.contains("react") || content.contains("node") ||
+            content.contains("vue") || content.contains(".net") ||
+            content.contains("c#") || content.contains("c++") ||
+            content.contains("php") || content.contains("ruby") ||
+            content.contains("typescript")) {
+            return "DEVELOPMENT";
+        }
+        
+        // IT Security
+        if (content.contains("security") || content.contains("sécurité") ||
+            content.contains("cybersecurity") || content.contains("cyber-security") ||
+            content.contains("information security") || content.contains("sécurité informatique") ||
+            content.contains("sécurité si") || content.contains("pentesting") ||
+            content.contains("penetration testing") || content.contains("ethical hacking") ||
+            content.contains("vulnerability") || content.contains("vulnérabilité") ||
+            content.contains("soc") || content.contains("security operations") ||
+            content.contains("infosec") || content.contains("audit") ||
+            content.contains("compliance") || content.contains("iso27001") ||
+            content.contains("gdpr") || content.contains("rgpd")) {
+            return "SECURITY";
+        }
+        
+        // Data Science/Analytics
+        if (content.contains("data scientist") || content.contains("data science") ||
+            content.contains("machine learning") || content.contains("ml") ||
+            content.contains("artificial intelligence") || content.contains("ai") ||
+            content.contains("deep learning") || content.contains("nlp") ||
+            content.contains("natural language processing") ||
+            content.contains("data mining") || content.contains("statistics") ||
+            content.contains("statistiques") || content.contains("r programming") ||
+            content.contains("pandas") || content.contains("numpy") ||
+            content.contains("tensorflow") || content.contains("pytorch") ||
+            content.contains("scikit-learn") || content.contains("big data") ||
+            content.contains("data engineer") || content.contains("data engineering") ||
+            content.contains("hadoop") || content.contains("spark") ||
+            content.contains("data analyst") || content.contains("analyste de données") ||
+            content.contains("data analysis") || content.contains("analytics")) {
+            return "DATA";
+        }
+        
+        // Networking
+        if (content.contains("network") || content.contains("réseau") ||
+            content.contains("technicien réseau") || content.contains("network technician") ||
+            content.contains("network engineer") || content.contains("ingénieur réseau") ||
+            content.contains("cisco") || content.contains("juniper") ||
+            content.contains("routing") || content.contains("switching") ||
+            content.contains("firewall") || content.contains("vpn") ||
+            content.contains("lan") || content.contains("wan") ||
+            content.contains("wifi") || content.contains("wi-fi") ||
+            content.contains("tcp/ip") || content.contains("network administration") ||
+            content.contains("network infrastructure") ||
+            content.contains("infrastructure réseau") ||
+            content.contains("network architecture")) {
+            return "NETWORKING";
+        }
+        
+        // Business/Management
+        if (content.contains("business analyst") || content.contains("analyste métier") ||
+            content.contains("product owner") || content.contains("scrum master") ||
+            content.contains("project manager") || content.contains("chef de projet") ||
+            content.contains("product manager") || content.contains("program manager") ||
+            content.contains("director") || content.contains("directeur") ||
+            content.contains("chief") || content.contains("cto") ||
+            content.contains("cio") || content.contains("it manager") ||
+            content.contains("team lead") || content.contains("leadership") ||
+            content.contains("management") || content.contains("gestion") ||
+            content.contains("agile") || content.contains("transformation") ||
+            content.contains("strategy") || content.contains("stratégie") ||
+            content.contains("governance") || content.contains("gouvernance")) {
+            return "BUSINESS";
+        }
+        
+        // Sales/Marketing/Commercial
+        if (content.contains("sales") || content.contains("commercial") ||
+            content.contains("marketing") || content.contains("communic") ||
+            content.contains("community manager") || content.contains("social media") ||
+            content.contains("réseaux sociaux") || content.contains("seo") ||
+            content.contains("sem") || content.contains("advertising") ||
+            content.contains("publicité") || content.contains("growth") ||
+            content.contains("account manager") || content.contains("account executive") ||
+            content.contains("business development") ||
+            content.contains("développement commercial") ||
+            content.contains("sales representative") ||
+            content.contains("représentant commercial") ||
+            content.contains("digital marketing") ||
+            content.contains("marketing digital") ||
+            content.contains("brand") || content.contains("marque") ||
+            content.contains("pr") || content.contains("public relations") ||
+            content.contains("content") || content.contains("contenu")) {
+            return "COMMERCIAL";
+        }
+        
+        // Support/Operations
+        if (content.contains("support") || content.contains("helpdesk") ||
+            content.contains("help desk") || content.contains("service desk") ||
+            content.contains("technical support") || content.contains("support technique") ||
+            content.contains("it support") || content.contains("desktop support") ||
+            content.contains("systems administrator") || content.contains("administrateur système") ||
+            content.contains("admin") || content.contains("operations") ||
+            content.contains("devops") || content.contains("sre") ||
+            content.contains("site reliability") || content.contains("infrastructure") ||
+            content.contains("cloud") || content.contains("aws") ||
+            content.contains("azure") || content.contains("gcp") ||
+            content.contains("google cloud") || content.contains("platform") ||
+            content.contains("kubernetes") || content.contains("docker") ||
+            content.contains("virtualization") || content.contains("virtualisation") ||
+            content.contains("vmware")) {
+            return "OPERATIONS";
+        }
+        
+        // Default
+        return "OTHER";
+    }
+
+    // 4. Method for sentiment analysis
+    private double analyzeSentiment(CoreDocument doc) {
+        double totalScore = 0.0;
+        int sentenceCount = 0;
+        
+        // Process each sentence
+        for (CoreSentence sentence : doc.sentences()) {
+            // Get the sentiment annotation
+            String sentiment = sentence.sentiment();
+            
+            // Convert sentiment string to numeric score
+            double sentimentScore = 0.0;
+            switch (sentiment) {
+                case "VERY_NEGATIVE":
+                    sentimentScore = -2.0;
+                    break;
+                case "NEGATIVE":
+                    sentimentScore = -1.0;
+                    break;
+                case "NEUTRAL":
+                    sentimentScore = 0.0;
+                    break;
+                case "POSITIVE":
+                    sentimentScore = 1.0;
+                    break;
+                case "VERY_POSITIVE":
+                    sentimentScore = 2.0;
+                    break;
+                default:
+                    continue; // Skip sentences without sentiment
+            }
+            
+            totalScore += sentimentScore;
+            sentenceCount++;
+        }
+        
+        // Calculate average sentiment score
+        if (sentenceCount > 0) {
+            return totalScore / sentenceCount;
+        } else {
+            return 0.0;
+        }
+    }
+    
     public void trainOnDocument(String category, String document) {
         // Create or get counter for category
         Counter<String> categoryModel = categoryModels.computeIfAbsent(

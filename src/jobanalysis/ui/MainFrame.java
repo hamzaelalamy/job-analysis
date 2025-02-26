@@ -45,6 +45,11 @@ public class MainFrame extends JFrame {
         // Initialize card layout and panels
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
+        
+        // Add mainPanel to the frame
+        getContentPane().add(mainPanel);
+        
+        // Initialize all panels
         loginPanel = new LoginPanel(this);
         registerPanel = new RegisterPanel(this);
         scraperPanel = new ScraperPanel(this);
@@ -57,9 +62,9 @@ public class MainFrame extends JFrame {
         mainPanel.add(scraperPanel, "scraper");
         mainPanel.add(fileUploadPanel, "fileupload");
         mainPanel.add(classificationPanel, "classification");
-
-        add(mainPanel);
-        showLogin();
+        
+        // Now show the login panel
+        cardLayout.show(mainPanel, "login");
     }
 
     // Enhanced button creation with multiple styles
@@ -175,7 +180,7 @@ public class MainFrame extends JFrame {
 
     // Navigation methods
     public void showLogin() {
-        cardLayout.show(mainPanel, "login");
+        cardLayout.show(classificationPanel, "login");
     }
 
     public void showRegister() {
