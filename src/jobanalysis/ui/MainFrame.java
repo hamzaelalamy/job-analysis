@@ -180,7 +180,9 @@ public class MainFrame extends JFrame {
 
     // Navigation methods
     public void showLogin() {
-        cardLayout.show(classificationPanel, "login");
+public void showLogin() {
+    cardLayout.show(mainPanel, "login");
+}
     }
 
     public void showRegister() {
