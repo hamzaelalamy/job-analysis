@@ -112,7 +112,6 @@ public class FileUploadPanel extends JPanel {
         
         // Analyze Button 
         JButton analyzeButton = MainFrame.createStyledButton("Analyze Data", "secondary");
-        analyzeButton.setEnabled(false);
         analyzeButton.addActionListener(e -> parent.showClassification());
 
         bottomPanel.add(uploadButton);

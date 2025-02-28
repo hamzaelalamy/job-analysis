@@ -1,0 +1,69 @@
+<component name="libraryTable">
+  <library name="mysql-connector-j-8.0.31 (2)">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.31 (2).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.31 (1).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mysql-connector-j-8.0.31.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mongodb-driver-sync-4.11.1.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/mongodb-driver-core-4.11.1.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/slf4j-simple-2.0.9.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/slf4j-api-2.0.9.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jsoup-1.18.3.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/bson-4.11.1.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.5.4.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.5.3 (2).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.5.3 (1).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19-swt.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.5.3.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19-experimental.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19-demo.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jcommon-1.0.24 (1).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jcommon-1.0.24.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jcommon-1.0.23 (1).jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jcommon-1.0.23.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+      <root url="file://$USER_HOME$/Desktop/jfreechart-1.0.1" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="https://sourceforge.net/projects/jfreechart/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+      <root url="jar://$USER_HOME$/Downloads/jcommon-1.0.23.zip!/jcommon-1.0.23/src/main/java" />
+      <root url="jar://$USER_HOME$/Downloads/jcommon-1.0.23.zip!/jcommon-1.0.23/src/test/java" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (1).zip!/jfreechart-1.0.19/experimental" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (1).zip!/jfreechart-1.0.19/source" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (1).zip!/jfreechart-1.0.19/swt" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (1).zip!/jfreechart-1.0.19/tests" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (2).zip!/jfreechart-1.0.19/experimental" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (2).zip!/jfreechart-1.0.19/source" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (2).zip!/jfreechart-1.0.19/swt" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (2).zip!/jfreechart-1.0.19/tests" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (3).zip!/jfreechart-1.0.19/experimental" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (3).zip!/jfreechart-1.0.19/source" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (3).zip!/jfreechart-1.0.19/swt" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (3).zip!/jfreechart-1.0.19/tests" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (4).zip!/jfreechart-1.0.19/experimental" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (4).zip!/jfreechart-1.0.19/source" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (4).zip!/jfreechart-1.0.19/swt" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19 (4).zip!/jfreechart-1.0.19/tests" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19.zip!/jfreechart-1.0.19/experimental" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19.zip!/jfreechart-1.0.19/source" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19.zip!/jfreechart-1.0.19/swt" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.0.19.zip!/jfreechart-1.0.19/tests" />
+      <root url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" />
+      <root url="file://$USER_HOME$/Desktop/jfreechart-1.5.3/src/main/java" />
+      <root url="file://$USER_HOME$/Desktop/jfreechart-1.5.3/src/test/java" />
+      <root url="file://$USER_HOME$/Desktop/jfreechart-1.0.1/source" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.5.3.zip!/jfreechart-1.5.3/src/main/java" />
+      <root url="jar://$USER_HOME$/Downloads/jfreechart-1.5.3.zip!/jfreechart-1.5.3/src/test/java" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/Desktop/jfreechart-1.0.1" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/selenium-java-4.27.0" recursive="false" type="SOURCES" />
+  </library>
+</component>

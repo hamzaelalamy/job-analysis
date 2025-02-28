@@ -106,7 +106,7 @@ public class LoginPanel extends JPanel {
         
         if (!username.isEmpty() && !password.isEmpty()) {
             if (authService.login(username, password)) {
-                parent.showClassification();  // Show scraper panel after successful login
+                parent.showScraper(); 
             } else {
                 JOptionPane.showMessageDialog(this, 
                     "Invalid username or password", "Error", 
