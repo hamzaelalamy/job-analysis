@@ -62,12 +62,9 @@ public class MainFrame extends JFrame {
         mainPanel.add(scraperPanel, "scraper");
         mainPanel.add(fileUploadPanel, "fileupload");
         mainPanel.add(classificationPanel, "classification");
-        
-        // Now show the login panel
         cardLayout.show(mainPanel, "fileuploads");
     }
 
-    // Enhanced button creation with multiple styles
     public static JButton createStyledButton(String text, String style) {
         JButton button = new JButton(text);
         button.setFont(BUTTON_FONT);
@@ -98,7 +95,6 @@ public class MainFrame extends JFrame {
         return button;
     }
 
-    // Overloaded method for backward compatibility
     public static JButton createStyledButton(String text) {
         return createStyledButton(text, "primary");
     }
@@ -133,7 +129,6 @@ public class MainFrame extends JFrame {
         button.setBorder(BorderFactory.createLineBorder(BUTTON_COLOR));
     }
 
-    // Enhanced text field creation
     public static JTextField createStyledTextField() {
         JTextField field = new JTextField(20);
         field.setFont(LABEL_FONT);
@@ -142,7 +137,6 @@ public class MainFrame extends JFrame {
         return field;
     }
 
-    // Enhanced password field creation
     public static JPasswordField createStyledPasswordField() {
         JPasswordField field = new JPasswordField(20);
         field.setFont(LABEL_FONT);
@@ -151,7 +145,6 @@ public class MainFrame extends JFrame {
         return field;
     }
 
-    // Create consistent text field border
     private static Border createTextFieldBorder() {
         return BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
@@ -159,7 +152,6 @@ public class MainFrame extends JFrame {
         );
     }
 
-    // Create styled scroll pane
     public static JScrollPane createStyledScrollPane(Component view) {
         JScrollPane scrollPane = new JScrollPane(view);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -180,9 +172,7 @@ public class MainFrame extends JFrame {
 
     // Navigation methods
     public void showLogin() {
-public void showLogin() {
     cardLayout.show(mainPanel, "login");
-}
     }
 
     public void showRegister() {
