@@ -54,6 +54,7 @@ public class JSoupScraper {
             case "indeed" -> scrapeWithSelenium(url, this::parseIndeedJob);
             default -> scrapeWithSelenium(url, this::parseGenericJob);
         };
+
     }
 
     public List<JobOffer> scrapeMultiplePages(String baseUrl, int numberOfPages) {
