@@ -21,6 +21,7 @@ public class FileUploadPanel extends JPanel {
     private JButton preprocessButton;
     private File uploadedFile;
     private MainFrame parent;
+    private JButton analyzeButton;
 
     public FileUploadPanel(MainFrame parent) {
         this.parent = parent;
@@ -108,9 +109,15 @@ public class FileUploadPanel extends JPanel {
         preprocessButton = MainFrame.createStyledButton("Preprocess Data", "success");
         preprocessButton.setEnabled(false);
         preprocessButton.addActionListener(e -> handlePreprocessing());
+        
+        // Analyze Button 
+        JButton analyzeButton = MainFrame.createStyledButton("Analyze Data", "secondary");
+        analyzeButton.setEnabled(false);
+        analyzeButton.addActionListener(e -> parent.showClassification());
 
         bottomPanel.add(uploadButton);
         bottomPanel.add(preprocessButton);
+        bottomPanel.add(analyzeButton);
 
         return bottomPanel;
     }
@@ -198,6 +205,9 @@ public class FileUploadPanel extends JPanel {
                     File processedFile = new File("data/cleaned_job_listings.json");
                     String processedContent = Files.readString(processedFile.toPath());
                     previewArea.setText(processedContent.substring(0, Math.min(processedContent.length(), 1000)) + "...");
+
+                    // Enable the analyze button
+                    analyzeButton.setEnabled(true);
 
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(FileUploadPanel.this,

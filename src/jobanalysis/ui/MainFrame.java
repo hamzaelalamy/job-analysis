@@ -64,7 +64,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(classificationPanel, "classification");
         
         // Now show the login panel
-        cardLayout.show(mainPanel, "login");
+        cardLayout.show(mainPanel, "fileuploads");
     }
 
     // Enhanced button creation with multiple styles
