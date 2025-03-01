@@ -103,9 +103,13 @@ public class ScraperPanel extends JPanel {
         logoutButton.setPreferredSize(new Dimension(100, 35));
         logoutButton.addActionListener(e -> parent.showLogin());
 
+        JButton classificationButton = MainFrame.createStyledButton("Classification", "primary");
+        classificationButton.addActionListener(e -> parent.showClassification());
+
         controlButtons.add(helpButton);
         controlButtons.add(logoutButton);
         controlButtons.add(dashboardButton);
+        controlButtons.add(classificationButton);
 
         headerPanel.add(controlButtons, BorderLayout.EAST);
 

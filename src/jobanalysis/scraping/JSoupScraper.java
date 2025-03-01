@@ -241,7 +241,7 @@ public class JSoupScraper {
 
     private String extractExperienceLevel(Document doc, String description) {
         String experienceText = findFirstMatch(doc,
-                "li:contains(Seniority level)",
+                //"li:contains(Seniority level)",
                 "div[class*=experience-level]",
                 "span[class*=experience]",
                 "[data-automation*=experience]",
@@ -708,7 +708,7 @@ public class JSoupScraper {
         data.put("employmentType", findFirstMatch(card, "[class*=employment-type], [class*=job-type]"));
         data.put("workplaceType", findFirstMatch(card, "[class*=workplace-type], [class*=work-type]"));
         data.put("postedDate", findFirstMatch(card, "time[datetime], [class*=posted]"));
-        data.put("experienceLevel", findFirstMatch(card, "[class*=experience], [class*=seniority]"));
+        // data.put("experienceLevel", findFirstMatch(card, "[class*=experience], [class*=seniority]"));
         data.put("requiredSkills", findFirstMatch(card, "[class*=skills], [class*=requirements]"));
         data.put("benefits", findFirstMatch(card, "[class*=benefits], [class*=perks]"));
 
