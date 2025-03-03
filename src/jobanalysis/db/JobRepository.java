@@ -18,15 +18,30 @@ public class JobRepository {
     }
 
     public void saveJobOffer(JobOffer offer) {
-        Document doc = new Document()
-                .append("title", offer.getTitle())
-                .append("company", offer.getCompany())
-                .append("description", offer.getDescription())
-                .append("location", offer.getLocation())
-                .append("scrapedDate", new Date())
-                .append("sourceUrl", offer.getUrl()); // Changed from getSourceUrl to getUrl to match JobOffer class
+        try {
+            Document doc = new Document()
+                    .append("title", offer.getTitle())
+                    .append("company", offer.getCompany())
+                    .append("description", offer.getDescription())
+                    .append("location", offer.getLocation())
+                    .append("requiredSkills", offer.getRequiredSkills())
+                    .append("salary", offer.getSalary())
+                    .append("sourceUrl", offer.getUrl())  // Ensure key matches retrieval
+                    .append("employmentType", offer.getEmploymentType())
+                    .append("experienceLevel", offer.getExperienceLevel())
+                    .append("workplaceType", offer.getWorkplaceType())
+                    .append("postedDate", offer.getPostedDate())
+                    .append("applicationDeadline", offer.getApplicationDeadline())
+                    .append("benefits", offer.getBenefits())
+                    .append("companyDescription", offer.getCompanyDescription())
+                    .append("scrapedDate", new Date());
 
-        collection.insertOne(doc);
+            collection.insertOne(doc);
+            System.out.println("Successfully saved job offer: " + offer.getTitle());
+        } catch (Exception e) {
+            System.err.println("Error saving job offer: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public List<JobOffer> getAllJobOffers() {

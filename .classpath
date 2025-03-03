@@ -6,12 +6,65 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/user/Downloads/jsoup-1.18.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/user/Downloads/jfreechart-1.0.19/jfreechart-1.0.19/lib/jfreechart-1.0.19.jar"/>
-	<classpathentry kind="lib" path="C:/Users/user/Downloads/mongodb-driver-sync-4.11.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/user/Downloads/bson-4.11.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/user/Downloads/mongodb-driver-core-4.11.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsoup-1.18.3.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.24.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb-driver-sync-4.11.1.jar"/>
+	<classpathentry kind="lib" path="lib/bson-4.11.1.jar"/>
+	<classpathentry kind="lib" path="lib/mongodb-driver-core-4.11.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-2.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-2.0.9.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/mtj-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/weka.jar"/>
+	<classpathentry kind="lib" path="lib/weka-src.jar"/>
+	<classpathentry kind="lib" path="lib/remoteExperimentServer.jar"/>
+	<classpathentry kind="lib" path="lib/opencsv-5.10.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.17.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.15.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.15.3.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.15.3.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-4.5.8.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-4.5.8-models.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-4.5.8-models-french.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-4.4.0-models-arabic.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-corenlp-4.4.0-models-english-kbp.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb-api-2.4.0-b180830.0359.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb-impl-2.4.0-b180830.0438.jar"/>
+	<classpathentry kind="lib" path="lib/protobuf-java-3.25.5.jar"/>
+	<classpathentry kind="lib" path="lib/ejml-core-0.39.jar"/>
+	<classpathentry kind="lib" path="lib/ejml-ddense-0.39.jar"/>
+	<classpathentry kind="lib" path="lib/ejml-simple-0.39.jar"/>
+	<classpathentry kind="lib" path="lib/xom.jar"/>
+	<classpathentry kind="lib" path="resources"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/jfreechart-1.5.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.4.0-models-english-kbp.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.4.0-models-arabic.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8-models-french.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-annotations-2.15.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-core-2.15.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/jackson-databind-2.15.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/opencsv-5.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/mtj-1.0.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/slf4j-simple-2.0.9.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Downloads/slf4j-api-2.0.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/mongodb-driver-core-4.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/bson-4.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/bson-record-codec-4.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/mongodb-driver-sync-4.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/jsoup-1.18.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8-models.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/jaxb-api-2.4.0-b180830.0359.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/jaxb-impl-2.4.0-b180830.0438.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/protobuf-java-3.25.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/slf4j-simple.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-core-0.39.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-ddense-0.39.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/ejml-simple-0.39.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/xom.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Downloads/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8/stanford-corenlp-4.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
